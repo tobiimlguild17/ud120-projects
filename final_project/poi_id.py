@@ -2,6 +2,7 @@
 
 import sys
 import numpy as np
+import outliers
 import pickle
 import matplotlib.pyplot as plt
 sys.path.append("../tools/")
@@ -32,9 +33,8 @@ my_dataset = data_dict
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
-labels, features = targetFeatureSplit(data)
-
-print labels
+data_no_outliers = outliers.remove_outliers_based_on_std_deviations(data, number_of_standard_deviations=1)
+labels, features = targetFeatureSplit(data_no_outliers)
 
 features_formatted = np.transpose(np.squeeze(features))
 
