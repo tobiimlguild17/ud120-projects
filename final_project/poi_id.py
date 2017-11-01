@@ -11,14 +11,18 @@ from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
 from helpers import Draw
 
-### Task 1: Select what features you'll use.
-### features_list is a list of strings, each of which is a feature name.
-### The first feature must be "poi".
-features_list = ['poi','salary', 'bonus'] # You will need to use more features
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
 
 ### Load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
     data_dict = pickle.load(data_file)
+
+features_list = data_dict["TOTAL"].keys()
+features_list.insert(0, features_list.pop(features_list.index("poi")))
+features_list.pop(features_list.index("email_address"))
+print features_list
+
 
 ### Task 2: Remove outliers
 data_dict.pop("TOTAL")
@@ -32,14 +36,20 @@ my_dataset = data_dict
 #        print key2
 
 ### Extract features and labels from dataset for local testing
-data = featureFormat(my_dataset, features_list, sort_keys = True)
-data_no_outliers = outliers.remove_outliers_based_on_std_deviations(data, number_of_standard_deviations=1)
+data = featureFormat(my_dataset, features_list, sort_keys=True)
+data = np.abs(data)
+data_no_outliers = outliers.remove_outliers_based_on_std_deviations(data, number_of_standard_deviations=2)
 labels, features = targetFeatureSplit(data_no_outliers)
+
+feature_chi_scores = SelectKBest(chi2, k="all").fit(data_no_outliers[:, 1:], data_no_outliers[:, 0]).scores_
+print 'best features: '
+print np.array(features_list)[np.argsort(feature_chi_scores) + 1]
+print np.argsort(feature_chi_scores)
 
 features_formatted = np.transpose(np.squeeze(features))
 
 # Plots
-Draw(features_formatted[0], features_formatted[1], labels, f1_name=features_list[1], f2_name=features_list[2])
+Draw(features_formatted[12], features_formatted[18], labels, f1_name=features_list[13], f2_name=features_list[19])
 ### Task 4: Try a varity of classifiers
 ### Please name your classifier clf for easy export below.
 ### Note that if you want to do PCA or other multi-stage operations,
