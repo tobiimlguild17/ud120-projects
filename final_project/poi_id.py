@@ -9,6 +9,8 @@ sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
 from helpers import Draw
+from outlier_remove import remove
+
 
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
@@ -34,12 +36,15 @@ my_dataset = data_dict
 data = featureFormat(my_dataset, features_list, sort_keys = True)
 labels, features = targetFeatureSplit(data)
 
-print labels
-
 features_formatted = np.transpose(np.squeeze(features))
+
+neighbor = 15
+features_after_removal = remove(features, features_formatted, neighbor)
 
 # Plots
 Draw(features_formatted[0], features_formatted[1], labels, f1_name=features_list[1], f2_name=features_list[2])
+
+
 ### Task 4: Try a varity of classifiers
 ### Please name your classifier clf for easy export below.
 ### Note that if you want to do PCA or other multi-stage operations,
