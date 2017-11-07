@@ -5,6 +5,7 @@ import numpy as np
 import outliers
 import pickle
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
 sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
@@ -37,11 +38,18 @@ my_dataset = data_dict
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys=True)
-data = np.abs(data)
-data_no_outliers = outliers.remove_outliers_based_on_std_deviations(data, number_of_standard_deviations=2)
-labels, features = targetFeatureSplit(data_no_outliers)
+#data = np.abs(data)
 
-feature_chi_scores = SelectKBest(chi2, k="all").fit(data_no_outliers[:, 1:], data_no_outliers[:, 0]).scores_
+labels, features = targetFeatureSplit(data)
+
+scaler = MinMaxScaler()
+features = scaler.fit_transform(features)
+
+
+data_no_outliers, labels = outliers.remove_outliers_based_on_std_deviations(features, labels, number_of_standard_deviations=2)
+
+
+feature_chi_scores = SelectKBest(chi2, k="all").fit(data_no_outliers, labels).scores_
 print 'best features: '
 print np.array(features_list)[np.argsort(feature_chi_scores) + 1]
 print np.argsort(feature_chi_scores)
@@ -49,7 +57,7 @@ print np.argsort(feature_chi_scores)
 features_formatted = np.transpose(np.squeeze(features))
 
 # Plots
-Draw(features_formatted[12], features_formatted[18], labels, f1_name=features_list[13], f2_name=features_list[19])
+Draw(features_formatted[11], features_formatted[8], labels, f1_name=features_list[12], f2_name=features_list[9])
 ### Task 4: Try a varity of classifiers
 ### Please name your classifier clf for easy export below.
 ### Note that if you want to do PCA or other multi-stage operations,
