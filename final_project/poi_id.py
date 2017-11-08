@@ -39,7 +39,7 @@ labels, features = targetFeatureSplit(data)
 features_formatted = np.transpose(np.squeeze(features))
 
 neighbor = 15
-features_after_removal = remove(features, features_formatted, neighbor)
+labels, features_after_removal = remove(labels, features, features_formatted, neighbor)
 
 # Plots
 Draw(features_formatted[0], features_formatted[1], labels, f1_name=features_list[1], f2_name=features_list[2])
