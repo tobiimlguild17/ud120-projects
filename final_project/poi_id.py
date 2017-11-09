@@ -23,9 +23,11 @@ with open("final_project_dataset.pkl", "r") as data_file:
 features_list = data_dict["TOTAL"].keys()
 features_list.insert(0, features_list.pop(features_list.index("poi")))
 features_list.pop(features_list.index("email_address"))
+features_list.pop(features_list.index("loan_advances"))
 
 ### Task 2: Remove outliers
 data_dict.pop("TOTAL")
+data_dict.pop("THE TRAVEL AGENCY IN THE PARK")
 
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
@@ -41,8 +43,12 @@ scaler = MinMaxScaler()
 data_all_features_scaled = scaler.fit_transform(data_all_features)
 
 ### Remove outliers
-data_no_outliers, labels_no_outliers = \
-    outliers.remove_outliers_based_on_std_deviations(data_all_features_scaled, labels, number_of_standard_deviations=2)
+#data_no_outliers, labels_no_outliers = \
+#    outliers.remove_outliers_based_on_std_deviations(data_all_features_scaled, labels, number_of_standard_deviations=2)
+
+#data_no_outliers = np.abs(data_all_features) # <- this one has the best performance
+data_no_outliers = data_all_features_scaled
+labels_no_outliers = labels
 
 feature_chi_scores = SelectKBest(chi2, k="all").fit(data_no_outliers, labels_no_outliers).scores_
 print 'best features: '
@@ -52,10 +58,14 @@ print np.argsort(feature_chi_scores)
 print 'chi scores'
 print np.sort(feature_chi_scores)
 
-features_formatted = np.transpose(np.squeeze(data_no_outliers))
+features_list = np.array(features_list)[np.argsort(feature_chi_scores) + 1][10:]
+features_list = np.insert(features_list, 0, 'poi')
+print "features_list", features_list
+
+#features_formatted = np.transpose(np.squeeze(data_no_outliers))
 
 # Plots
-Draw(features_formatted[9], features_formatted[4], labels_no_outliers, f1_name=features_list[10], f2_name=features_list[5])
+#Draw(features_formatted[9], features_formatted[4], labels_no_outliers, f1_name=features_list[10], f2_name=features_list[5])
 ### Task 4: Try a varity of classifiers
 ### Please name your classifier clf for easy export below.
 ### Note that if you want to do PCA or other multi-stage operations,
@@ -64,9 +74,12 @@ Draw(features_formatted[9], features_formatted[4], labels_no_outliers, f1_name=f
 
 # Provided to give you a starting point. Try a variety of classifiers.
 from sklearn.naive_bayes import GaussianNB
-clf = GaussianNB()
+from sklearn.pipeline import Pipeline
+from sklearn.decomposition import PCA
+estimators = [('reduce_dim', PCA(n_components=5)), ('clf', GaussianNB())]
+clf = Pipeline(estimators)
 
-### Task 5: Tune your classifier to achieve better than .3 precision and recall 
+### Task 5: Tune your classifier to achieve better than .3 precision and recall
 ### using our testing script. Check the tester.py script in the final project
 ### folder for details on the evaluation method, especially the test_classifier
 ### function. Because of the small size of the dataset, the script uses
@@ -74,9 +87,9 @@ clf = GaussianNB()
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 
 # Example starting point. Try investigating other evaluation techniques!
-from sklearn.cross_validation import train_test_split
-features_train, features_test, labels_train, labels_test = \
-    train_test_split(features, labels, test_size=0.3, random_state=42)
+#from sklearn.cross_validation import train_test_split
+#features_train, features_test, labels_train, labels_test = \
+#    train_test_split(features, labels, test_size=0.3, random_state=42)
 
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
