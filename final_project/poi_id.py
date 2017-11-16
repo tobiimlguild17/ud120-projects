@@ -58,9 +58,9 @@ print np.argsort(feature_chi_scores)
 print 'chi scores'
 print np.sort(feature_chi_scores)
 
-features_list = np.array(features_list)[np.argsort(feature_chi_scores) + 1][10:]
-features_list = np.insert(features_list, 0, 'poi')
-print "features_list", features_list
+# features_list = np.array(features_list)[np.argsort(feature_chi_scores) + 1][10:]
+# features_list = np.insert(features_list, 0, 'poi')
+# print "features_list", features_list
 
 #features_formatted = np.transpose(np.squeeze(data_no_outliers))
 
@@ -76,7 +76,7 @@ print "features_list", features_list
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
-estimators = [('reduce_dim', PCA(n_components=5)), ('clf', GaussianNB())]
+estimators = [('reduce_dim', PCA(n_components=9)), ('clf', GaussianNB())]
 clf = Pipeline(estimators)
 
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall
