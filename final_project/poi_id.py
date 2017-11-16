@@ -73,12 +73,29 @@ print "features_list", features_list
 ### http://scikit-learn.org/stable/modules/pipeline.html
 
 # Provided to give you a starting point. Try a variety of classifiers.
-from sklearn.naive_bayes import GaussianNB
-from sklearn.pipeline import Pipeline
-from sklearn.decomposition import PCA
-estimators = [('reduce_dim', PCA(n_components=5)), ('clf', GaussianNB())]
-clf = Pipeline(estimators)
+#from sklearn.naive_bayes import GaussianNB
+#from sklearn.pipeline import Pipeline
+#from sklearn.decomposition import PCA
+#estimators = [('reduce_dim', PCA(n_components=5)), ('clf', GaussianNB())]
+#clf = Pipeline(estimators)
 
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import GridSearchCV
+param_grid = {"base_estimator__splitter" :   ["best", "random"],
+              "base_estimator__max_depth" : [None, 3],
+              "base_estimator__min_samples_split" : [2,5,10],
+              "n_estimators": [32, 64],
+              "learning_rate" : [0.1,1,10]}
+
+dtc = DecisionTreeClassifier(criterion='entropy',max_features="auto")
+adaclf = AdaBoostClassifier(base_estimator = dtc)
+clf = GridSearchCV(adaclf, param_grid=param_grid, scoring = 'f1')
+
+"""
+Accuracy: 0.78560 Precision: 0.24106 Recall: 0.28300 F1: 0.26035 F2: 0.27348
+Total predictions: 15000 True positives:  566 False positives: 1782 False negatives: 1434 True negatives: 11218
+"""
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall
 ### using our testing script. Check the tester.py script in the final project
 ### folder for details on the evaluation method, especially the test_classifier
