@@ -13,7 +13,7 @@ from tester import dump_classifier_and_data
 from helpers import Draw
 
 from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
+from sklearn.feature_selection import f_regression
 from sklearn.preprocessing import MinMaxScaler
 
 ### Load the dictionary containing the dataset
@@ -50,7 +50,7 @@ data_all_features_scaled = scaler.fit_transform(data_all_features)
 data_no_outliers = data_all_features_scaled
 labels_no_outliers = labels
 
-feature_chi_scores = SelectKBest(chi2, k="all").fit(data_no_outliers, labels_no_outliers).scores_
+feature_chi_scores = SelectKBest(f_regression, k="all").fit(data_no_outliers, labels_no_outliers).scores_
 print 'best features: '
 print np.array(features_list)[np.argsort(feature_chi_scores) + 1]
 print 'indices'
@@ -58,7 +58,8 @@ print np.argsort(feature_chi_scores)
 print 'chi scores'
 print np.sort(feature_chi_scores)
 
-features_list = np.array(features_list)[np.argsort(feature_chi_scores) + 1][10:]
+number_of_features_to_keep = 8
+features_list = np.array(features_list)[np.argsort(feature_chi_scores) + 1][-number_of_features_to_keep:]
 features_list = np.insert(features_list, 0, 'poi')
 print "features_list", features_list
 
@@ -76,7 +77,7 @@ print "features_list", features_list
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
-estimators = [('reduce_dim', PCA(n_components=5)), ('clf', GaussianNB())]
+estimators = [('transform', PCA(n_components=len(features_list)-1)), ('scaling', MinMaxScaler()), ('clf', GaussianNB())]
 clf = Pipeline(estimators)
 
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall
@@ -89,7 +90,7 @@ clf = Pipeline(estimators)
 # Example starting point. Try investigating other evaluation techniques!
 #from sklearn.cross_validation import train_test_split
 #features_train, features_test, labels_train, labels_test = \
-#    train_test_split(features, labels, test_size=0.3, random_state=42)
+#    train_test_split(features_list, labels, test_size=0.3, random_state=42)
 
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
