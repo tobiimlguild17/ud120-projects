@@ -1,0 +1,30 @@
+The goal of this project is to detect persons of interest in the Enron dataset. The dataset contains financial information about Enron employees and e-mails sent between them. This data can be used to train a machine learning algorithm that can classify people as poi or non-poi. We removed two data points, "TOTAL" and "THE TRAVEL AGENCY IN THE PARK", because they seemed irrelevant to the question we are trying to answer. We removed "email_address" from the feature list because the values are not numerical and they are probably not so fruitful to use. We also removed "loan_advances" because very few persons had a value for this feature and results seemed better not using it. After removing those two data points and those two features, the dataset contains 18 POIs, 126 non-POIs and 18 financial features left.
+
+To select which features to use, we used SelectKBest with f_regression as score function. We also tried chi2 as score function but that gave worse results. 
+
+Features sorted by f_regression score:
+exercised_stock_options 24.8150797332
+total_stock_value 24.1828986786
+bonus 20.7922520472
+salary 18.2896840434
+deferred_income 11.4584765793
+long_term_incentive 9.92218601319
+restricted_stock 9.21281062198
+total_payments 8.77277773009
+shared_receipt_with_poi 8.58942073168
+expenses 6.09417331064
+from_poi_to_this_person 5.24344971337
+other 4.187477507
+from_this_person_to_poi 2.38261210823
+director_fees 2.12632780201
+to_messages 1.64634112944
+deferral_payments 0.224611274736
+from_messages 0.169700947622
+restricted_stock_deferred 0.0654996529099
+
+We tried with different number of features and using the 8 features with highest f_regression score gave us the best result. We used MinMaxScaler to scale the features, both before the feature selection and in the classifier pipeline.
+
+We tested decision tree, support vector machines and AdaBoost, but nothing had better results than Naive Bayes. Adding PCA to the pipeline before the GaussianNB increased the F1 score from 0.34711 to 0.41518. We used PCA just to transform the features, and used as many components as we had features.
+
+When we tested SVM, it did not work at all at first with default parameter values, but after increasing the C value we got some results. For AdaBoost we used GridSearchCV to test different number of trees and minimum number of samples for split, but the best resuls from that was still worse than Naive Bayes.
+
