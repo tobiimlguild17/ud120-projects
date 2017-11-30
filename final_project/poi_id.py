@@ -42,28 +42,12 @@ labels = np.array(labels)
 scaler = MinMaxScaler()
 data_all_features_scaled = scaler.fit_transform(data_all_features)
 
-### Remove outliers
-#data_no_outliers, labels_no_outliers = \
-#    outliers.remove_outliers_based_on_std_deviations(data_all_features_scaled, labels, number_of_standard_deviations=2)
 
-#data_no_outliers = np.abs(data_all_features) # <- this one has the best performance
-data_no_outliers = data_all_features_scaled
-labels_no_outliers = labels
-
-feature_chi_scores = SelectKBest(f_regression, k="all").fit(data_no_outliers, labels_no_outliers).scores_
-print 'best features: '
-print np.array(features_list)[np.argsort(feature_chi_scores) + 1]
-print 'indices'
-print np.argsort(feature_chi_scores)
-print 'chi scores'
-print np.sort(feature_chi_scores)
-
+### Find best features
+feature_scores = SelectKBest(f_regression, k="all").fit(data_all_features_scaled, labels).scores_
 number_of_features_to_keep = 8
-features_list = np.array(features_list)[np.argsort(feature_chi_scores) + 1][-number_of_features_to_keep:]
+features_list = np.array(features_list)[np.argsort(feature_scores) + 1][-number_of_features_to_keep:]
 features_list = np.insert(features_list, 0, 'poi')
-print "features_list", features_list
-
-#features_formatted = np.transpose(np.squeeze(data_no_outliers))
 
 # Plots
 #Draw(features_formatted[9], features_formatted[4], labels_no_outliers, f1_name=features_list[10], f2_name=features_list[5])
@@ -77,8 +61,8 @@ print "features_list", features_list
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
-estimators = [('transform', PCA(n_components=len(features_list)-1)), ('scaling', MinMaxScaler()), ('clf', GaussianNB())]
-clf = Pipeline(estimators)
+steps = [('transform', PCA(n_components=len(features_list)-1)), ('scaling', MinMaxScaler()), ('clf', GaussianNB())]
+clf = Pipeline(steps)
 
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall
 ### using our testing script. Check the tester.py script in the final project
